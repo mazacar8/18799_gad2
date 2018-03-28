@@ -32,9 +32,16 @@ def linkCommittee(candidates,cc_linkfile):
 def getContributions(candidates_file,cand_cmte_linkfile,contrib_file,header_file,load_file,save_file,targets):
 
 	if load_file != None:
-		print("Loading Conributions from Pickle File....")
+		print("Loading Contributions from Pickle File....")
 		with open(load_file,'rb') as cf:
 			return pickle.load(cf)
+
+	if targets == 'S':
+		targets = set(["JOHNSON, RONALD HAROLD","FEINGOLD, RUSSELL DANA",\
+			"TOOMEY, PATRICK JOSEPH","MCGINTY, KATHLEEN ALANA"])
+	elif targets == 'P':
+		targets = set(["CLINTON, HILLARY RODHAM / TIMOTHY MICHAEL KAINE",\
+			"TRUMP, DONALD J. / MICHAEL R. PENCE "])
 
 	candidates = findCandidates(candidates_file,targets)
 	candidates = linkCommittee(candidates,cand_cmte_linkfile)
@@ -59,12 +66,13 @@ def getContributions(candidates_file,cand_cmte_linkfile,contrib_file,header_file
 				candidate_contributions[sub_id] = dict()
 				candidate_contributions[sub_id]['Candidate_ID'] = cid
 				candidate_contributions[sub_id]['Candidate_Name'] = candidates[cid]['Name']
+				candidate_contributions[sub_id]['Party'] = candidates[cid]['Party']
 				for i,header in enumerate(headers):
 					if i != 20:
 						candidate_contributions[sub_id][header] = info[i]
 
 	if save_file != None:
-		print("Saving Conributions to Pickle File....")
+		print("Saving Contributions to Pickle File....")
 		with open(save_file, 'wb') as cf:
 			pickle.dump(candidate_contributions, cf, protocol=pickle.HIGHEST_PROTOCOL)
 
@@ -85,19 +93,9 @@ def parse_arguments():
 def main(args):
 
 	args = parse_arguments()
-
-	if args.targets == 'S':
-		targets = set(["JOHNSON, RONALD HAROLD","FEINGOLD, RUSSELL DANA",\
-			"TOOMEY, PATRICK JOSEPH","MCGINTY, KATHLEEN ALANA"])
-	elif args.targets == 'P':
-		targets = set(["CLINTON, HILLARY RODHAM / TIMOTHY MICHAEL KAINE",\
-			"TRUMP, DONALD J. / MICHAEL R. PENCE "])
-
 	contributions = getContributions(args.candidate_file,args.cand_cmte_linkfile,\
-		args.contrib_file,args.header_file,args.load_file,args.save_file,targets)
+		args.contrib_file,args.header_file,args.load_file,args.save_file,args.targets)
 	print(len(contributions))
-	for sub_id in contributions:
-		print(contributions[sub_id]['Candidate_Name'])
 
 if __name__ == "__main__":
 	main(sys.argv)
